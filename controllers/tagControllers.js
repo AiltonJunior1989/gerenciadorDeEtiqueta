@@ -2,31 +2,25 @@ import Tag from "../models/tagModel.js"
 
 export const getTags = async (req, res) => {
   try {
-    const { dataInicial, dataFinal, tipo } = req.query
-
-    // if(!dataInicial || !dataFinal || !tipo) {
-    //   return dataInicial = null, dataFinal = null, tipo = null
-    // }
-
-    if (dataInicial || dataFinal || tipo) {
+    const { dataInicial, dataFinal, tipo, area, maquina } = req.query
+    // console.log(area, maquina)
+    // console.log(dataInicial)
+    // console.log(dataFinal)
+    if (dataInicial && dataFinal && maquina) {
       const tags = await Tag.find({
-        $or: [
-          {
-            criadaEm: {
-              $gte: dataInicial
-            }
-          },
-          {
-            criadaEm: {
-              $lte: dataFinal
-            }
-          },
-          {
-            tipo: {
-              $eq: tipo
-            }
-          }
-        ]
+        criadaEm: { $gte: new Date(dataInicial), $lte: new Date(dataFinal) },
+        maquina: {$eq: maquina}
+      })
+      res.status(200).json({ tags: tags, qtd: tags.length })
+    } else if (area && maquina) {
+      const tags = await Tag.find({
+        area: { $eq: area },
+        maquina: { $eq: maquina }
+      })
+      res.status(200).json({ tags: tags, qtd: tags.length })
+    } else if (area) {
+      const tags = await Tag.find({
+        area: { $eq: area }
       })
       res.status(200).json({ tags: tags, qtd: tags.length })
     } else {
@@ -41,8 +35,8 @@ export const getTags = async (req, res) => {
 export const createTags = async (req, res) => {
   console.log(req.body)
   const { tipo, area, maquina, subconjunto, conteudo } = req.body
-  let data = new Date().toDateString()
-  let dataVence = new Date().toDateString()
+  let data = new Date()
+  let dataVence = new Date()
   // dataVence.setDate(data.getDate() + 30)
   // console.log(data)
   // console.log(dataVence)
@@ -74,7 +68,7 @@ export const updateTag = async (req, res) => {
   }
 }
 
-export const deleteTag = async (req,res) => {
+export const deleteTag = async (req, res) => {
   try {
     const id = req.params.id
     const tag = await Tag.findById(id)
