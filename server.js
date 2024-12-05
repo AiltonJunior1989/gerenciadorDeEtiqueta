@@ -1,6 +1,7 @@
 import express, { json } from "express"
 import dotenv from "dotenv"
 import tagRouter from "./routes/tagRoutes.js"
+import userRouter from "./routes/user.Rotes.js"
 import { connectDB } from "./config/dbConnection.js"
 dotenv.config()
 const app = express()
@@ -10,6 +11,7 @@ const port = process.env.PORT
 
 app.use(json())
 app.use("/api/tags", tagRouter)
+app.use("/api/user", userRouter)
 
 
 app.listen(port, () => {
